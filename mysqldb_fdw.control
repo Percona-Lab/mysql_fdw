@@ -7,12 +7,14 @@
 #
 # Portions Copyright (c) 2004-2014, EnterpriseDB Corporation.
 #
+# Portions Copyright (c) 20018-2019, Postgres Connect.
+#
 # IDENTIFICATION
-# 			mysql_fdw.control
+# 			mysqldb_fdw.control
 #
 ##########################################################################
 
 comment = 'Foreign data wrapper for querying a MySQL server'
-default_version = '1.1'
-module_pathname = '$libdir/mysql_fdw'
+default_version = '1.0'
+module_pathname = '$libdir/mysqldb_fdw'
 relocatable = true

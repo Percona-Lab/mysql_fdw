@@ -1,6 +1,6 @@
 /*-------------------------------------------------------------------------
  *
- * mysql_fdw.h
+ * mysqldb_fdw.h
  * 		Foreign-data wrapper for remote MySQL servers
  *
  * Portions Copyright (c) 2012-2014, PostgreSQL Global Development Group
@@ -8,7 +8,7 @@
  * Portions Copyright (c) 2004-2014, EnterpriseDB Corporation.
  *
  * IDENTIFICATION
- * 		mysql_fdw.h
+ * 		mysqldb_fdw.h
  *
  *-------------------------------------------------------------------------
  */
@@ -16,9 +16,9 @@
 #ifndef MYSQL_FDW_H
 #define MYSQL_FDW_H
 
-#define list_length mysql_list_length
-#define list_delete mysql_list_delete
-#define list_free mysql_list_free
+#define list_length mysqldb_list_length
+#define list_delete mysqldb_list_delete
+#define list_free mysqldb_list_free
 
 #include <mysql.h>
 #undef list_length
@@ -45,7 +45,7 @@
  * Options structure to store the MySQL
  * server information
  */
-typedef struct mysql_opt
+typedef struct mysqldb_opt
 {
 	int           svr_port;               /* MySQL port number */
 	char          *svr_address;           /* MySQL server ip address */
@@ -64,25 +64,25 @@ typedef struct mysql_opt
 	char          *ssl_ca;                /* MySQL SSL: path to the certificate authority file */
 	char          *ssl_capath;            /* MySQL SSL: path to a directory that contains trusted SSL CA certificates in PEM format */
 	char          *ssl_cipher;            /* MySQL SSL: list of permissible ciphers to use for SSL encryption */
-} mysql_opt;
+} mysqldb_opt;
 
-typedef struct mysql_column
+typedef struct mysqldb_column
 {
 	Datum         value;
 	unsigned long length;
 	bool          is_null;
 	bool          error;
-	MYSQL_BIND    *_mysql_bind;
-} mysql_column;
+	MYSQL_BIND    *_mysqldb_bind;
+} mysqldb_column;
 
-typedef struct mysql_table
+typedef struct mysqldb_table
 {
-	MYSQL_RES *_mysql_res;
-	MYSQL_FIELD *_mysql_fields;
+	MYSQL_RES *_mysqldb_res;
+	MYSQL_FIELD *_mysqldb_fields;
 
-	mysql_column *column;
-	MYSQL_BIND *_mysql_bind;
-} mysql_table;
+	mysqldb_column *column;
+	MYSQL_BIND *_mysqldb_bind;
+} mysqldb_table;
 
 /*
  * FDW-specific information for ForeignScanState 
@@ -92,7 +92,7 @@ typedef struct MySQLFdwExecState
 {
 	MYSQL           *conn;              /* MySQL connection handle */
 	MYSQL_STMT      *stmt;              /* MySQL prepared stament handle */
-		mysql_table *table;
+		mysqldb_table *table;
 	char            *query;             /* Query string */
 	Relation        rel;                /* relcache entry for the foreign table */
 	List            *retrieved_attrs;   /* list of target attribute numbers */
@@ -107,7 +107,7 @@ typedef struct MySQLFdwExecState
 	int             p_nums;             /* number of parameters to transmit */
 	FmgrInfo        *p_flinfo;          /* output conversion functions for them */
 
-	mysql_opt       *mysqlFdwOptions;   /* MySQL FDW options */
+	mysqldb_opt       *mysqlFdwOptions;   /* MySQL FDW options */
 
 	List            *attr_list;         /* query attribute list */
 	List            *column_list;       /* Column list of MySQL Column structures */
@@ -130,31 +130,31 @@ extern bool is_foreign_expr(PlannerInfo *root,
                                 Expr *expr);
 
 
-int ((*_mysql_options)(MYSQL *mysql,enum mysql_option option, const void *arg));
-int ((*_mysql_stmt_prepare)(MYSQL_STMT *stmt, const char *query, unsigned long length));
-int ((*_mysql_stmt_execute)(MYSQL_STMT *stmt));
-int ((*_mysql_stmt_fetch)(MYSQL_STMT *stmt));
-int ((*_mysql_query)(MYSQL *mysql, const char *q));
-bool ((*_mysql_stmt_attr_set)(MYSQL_STMT *stmt, enum enum_stmt_attr_type attr_type, const void *attr));
-bool ((*_mysql_stmt_close)(MYSQL_STMT * stmt));
-bool ((*_mysql_stmt_reset)(MYSQL_STMT * stmt));
-bool ((*_mysql_free_result)(MYSQL_RES *result));
-bool ((*_mysql_stmt_bind_param)(MYSQL_STMT *stmt, MYSQL_BIND * bnd));
-bool ((*_mysql_stmt_bind_result)(MYSQL_STMT *stmt, MYSQL_BIND * bnd));
+int ((*_mysqldb_options)(MYSQL *mysql,enum mysql_option option, const void *arg));
+int ((*_mysqldb_stmt_prepare)(MYSQL_STMT *stmt, const char *query, unsigned long length));
+int ((*_mysqldb_stmt_execute)(MYSQL_STMT *stmt));
+int ((*_mysqldb_stmt_fetch)(MYSQL_STMT *stmt));
+int ((*_mysqldb_query)(MYSQL *mysql, const char *q));
+bool ((*_mysqldb_stmt_attr_set)(MYSQL_STMT *stmt, enum enum_stmt_attr_type attr_type, const void *attr));
+bool ((*_mysqldb_stmt_close)(MYSQL_STMT * stmt));
+bool ((*_mysqldb_stmt_reset)(MYSQL_STMT * stmt));
+bool ((*_mysqldb_free_result)(MYSQL_RES *result));
+bool ((*_mysqldb_stmt_bind_param)(MYSQL_STMT *stmt, MYSQL_BIND * bnd));
+bool ((*_mysqldb_stmt_bind_result)(MYSQL_STMT *stmt, MYSQL_BIND * bnd));
 
-MYSQL_STMT	*((*_mysql_stmt_init)(MYSQL *mysql));
-MYSQL_RES	*((*_mysql_stmt_result_metadata)(MYSQL_STMT *stmt));
-int ((*_mysql_stmt_store_result)(MYSQL *mysql));
-MYSQL_ROW	((*_mysql_fetch_row)(MYSQL_RES *result));
-MYSQL_FIELD	*((*_mysql_fetch_field)(MYSQL_RES *result));
-MYSQL_FIELD	*((*_mysql_fetch_fields)(MYSQL_RES *result));
-const char	*((*_mysql_error)(MYSQL *mysql));
-void	((*_mysql_close)(MYSQL *sock));
-MYSQL_RES* ((*_mysql_store_result)(MYSQL *mysql));
+MYSQL_STMT	*((*_mysqldb_stmt_init)(MYSQL *mysql));
+MYSQL_RES	*((*_mysqldb_stmt_result_metadata)(MYSQL_STMT *stmt));
+int ((*_mysqldb_stmt_store_result)(MYSQL *mysql));
+MYSQL_ROW	((*_mysqldb_fetch_row)(MYSQL_RES *result));
+MYSQL_FIELD	*((*_mysqldb_fetch_field)(MYSQL_RES *result));
+MYSQL_FIELD	*((*_mysqldb_fetch_fields)(MYSQL_RES *result));
+const char	*((*_mysqldb_error)(MYSQL *mysql));
+void	((*_mysqldb_close)(MYSQL *sock));
+MYSQL_RES* ((*_mysqldb_store_result)(MYSQL *mysql));
 
-MYSQL	*((*_mysql_init)(MYSQL *mysql));
-bool ((*_mysql_ssl_set)(MYSQL *mysql, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher));
-MYSQL	*((*_mysql_real_connect)(MYSQL *mysql,
+MYSQL	*((*_mysqldb_init)(MYSQL *mysql));
+bool ((*_mysqldb_ssl_set)(MYSQL *mysql, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher));
+MYSQL	*((*_mysqldb_real_connect)(MYSQL *mysql,
 								const char *host,
 								const char *user,
 								const char *passwd,
@@ -163,39 +163,39 @@ MYSQL	*((*_mysql_real_connect)(MYSQL *mysql,
 								const char *unix_socket,
 								unsigned long clientflag));
 
-const char *((*_mysql_get_host_info)(MYSQL *mysql));
-const char *((*_mysql_get_server_info)(MYSQL *mysql));
-int ((*_mysql_get_proto_info)(MYSQL *mysql));
+const char *((*_mysqldb_get_host_info)(MYSQL *mysql));
+const char *((*_mysqldb_get_server_info)(MYSQL *mysql));
+int ((*_mysqldb_get_proto_info)(MYSQL *mysql));
 
-unsigned int ((*_mysql_stmt_errno)(MYSQL_STMT *stmt));
-unsigned int ((*_mysql_errno)(MYSQL *mysql));
-unsigned int ((*_mysql_num_fields)(MYSQL_RES *result));
-unsigned int ((*_mysql_num_rows)(MYSQL_RES *result));
+unsigned int ((*_mysqldb_stmt_errno)(MYSQL_STMT *stmt));
+unsigned int ((*_mysqldb_errno)(MYSQL *mysql));
+unsigned int ((*_mysqldb_num_fields)(MYSQL_RES *result));
+unsigned int ((*_mysqldb_num_rows)(MYSQL_RES *result));
 
 
 /* option.c headers */
-extern bool mysql_is_valid_option(const char *option, Oid context);
-extern mysql_opt *mysql_get_options(Oid foreigntableid);
+extern bool mysqldb_is_valid_option(const char *option, Oid context);
+extern mysqldb_opt *mysqldb_get_options(Oid foreigntableid);
 
 /* depare.c headers */
-extern void mysql_deparse_select(StringInfo buf, PlannerInfo *root, RelOptInfo *baserel,
+extern void mysqldb_deparse_select(StringInfo buf, PlannerInfo *root, RelOptInfo *baserel,
 							 Bitmapset *attrs_used, char *svr_table, List **retrieved_attrs);
-extern void mysql_deparse_insert(StringInfo buf, PlannerInfo *root, Index rtindex, Relation rel, List *targetAttrs);
-extern void mysql_deparse_update(StringInfo buf, PlannerInfo *root, Index rtindex, Relation rel, List *targetAttrs, char *attname);
-extern void mysql_deparse_delete(StringInfo buf, PlannerInfo *root, Index rtindex, Relation rel, char *name);
-extern void mysql_append_where_clause(StringInfo buf, PlannerInfo *root, RelOptInfo *baserel, List *exprs,
+extern void mysqldb_deparse_insert(StringInfo buf, PlannerInfo *root, Index rtindex, Relation rel, List *targetAttrs);
+extern void mysqldb_deparse_update(StringInfo buf, PlannerInfo *root, Index rtindex, Relation rel, List *targetAttrs, char *attname);
+extern void mysqldb_deparse_delete(StringInfo buf, PlannerInfo *root, Index rtindex, Relation rel, char *name);
+extern void mysqldb_append_where_clause(StringInfo buf, PlannerInfo *root, RelOptInfo *baserel, List *exprs,
 							 bool is_first,List **params);
-extern void mysql_deparse_analyze(StringInfo buf, char *dbname, char *relname);
+extern void mysqldb_deparse_analyze(StringInfo buf, char *dbname, char *relname);
 
 
 /* connection.c headers */
-MYSQL *mysql_get_connection(ForeignServer *server, UserMapping *user, mysql_opt *opt);
-MYSQL *mysql_connect(char *svr_address, char *svr_username, char *svr_password, char *svr_database,
+MYSQL *mysqldb_get_connection(ForeignServer *server, UserMapping *user, mysqldb_opt *opt);
+MYSQL *mysqldb_connect(char *svr_address, char *svr_username, char *svr_password, char *svr_database,
 							 int svr_port, bool svr_sa, char *svr_init_command,
 							 char *ssl_key, char *ssl_cert, char *ssl_ca, char *ssl_capath,
 							 char *ssl_cipher);
-void  mysql_cleanup_connection(void);
-void mysql_rel_connection(MYSQL *conn);
+void  mysqldb_cleanup_connection(void);
+void mysqldb_rel_connection(MYSQL *conn);
 
 #if PG_VERSION_NUM < 110000 /* TupleDescAttr is defined from PG version 11 */ 
 	#define TupleDescAttr(tupdesc, i) ((tupdesc)->attrs[(i)])

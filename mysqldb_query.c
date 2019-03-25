@@ -1,21 +1,23 @@
 /*-------------------------------------------------------------------------
  *
- * mysql_query.c
+ * mysqldb_query.c
  * 		Foreign-data wrapper for remote MySQL servers
  *
  * Portions Copyright (c) 2012-2014, PostgreSQL Global Development Group
  *
  * Portions Copyright (c) 2004-2014, EnterpriseDB Corporation.
  *
+ * Portions Copyright (c) 2004-2014, Postgres Connect.
+ *
  * IDENTIFICATION
- * 		mysql_query.c
+ * 		mysqldb_query.c
  *
  *-------------------------------------------------------------------------
  */
 
 #include "postgres.h"
 
-#include "mysql_fdw.h"
+#include "mysqldb_fdw.h"
 #include <stdio.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -83,8 +85,8 @@
 #include "utils/datetime.h"
 
 
-#include "mysql_fdw.h"
-#include "mysql_query.h"
+#include "mysqldb_fdw.h"
+#include "mysqldb_query.h"
 
 
 #define DATE_MYSQL_PG(x, y) \
@@ -98,16 +100,16 @@ x->second = y.tm_sec; \
 } while(0);
 
 
-static int32 mysql_from_pgtyp(Oid type);
+static int32 mysqldb_from_pgtyp(Oid type);
 static int dec_bin(int n);
 static int bin_dec(int n);
 
 
 /*
- * convert_mysql_to_pg: Convert MySQL data into PostgreSQL's compatible data types
+ * convert_mysqldb_to_pg: Convert MySQL data into PostgreSQL's compatible data types
  */
 Datum
-mysql_convert_to_pg(Oid pgtyp, int pgtypmod, mysql_column *column)
+mysqldb_convert_to_pg(Oid pgtyp, int pgtypmod, mysqldb_column *column)
 {
 	Datum value_datum = 0;
 	Datum valueDatum = 0;
@@ -163,10 +165,10 @@ mysql_convert_to_pg(Oid pgtyp, int pgtypmod, mysql_column *column)
 
 
 /*
- * mysql_from_pgtyp: Give MySQL data type for PG type
+ * mysqldb_from_pgtyp: Give MySQL data type for PG type
  */
 static int32
-mysql_from_pgtyp(Oid type)
+mysqldb_from_pgtyp(Oid type)
 {
 	switch(type)
 	{
@@ -229,13 +231,13 @@ mysql_from_pgtyp(Oid type)
  * Bind the values provided as DatumBind the values and nulls to modify the target table (INSERT/UPDATE)
  */
 void 
-mysql_bind_sql_var(Oid type, int attnum, Datum value, MYSQL_BIND *binds, bool *isnull)
+mysqldb_bind_sql_var(Oid type, int attnum, Datum value, MYSQL_BIND *binds, bool *isnull)
 {
 	/* Clear the bind buffer and attributes */
 	memset(&binds[attnum], 0x0, sizeof(MYSQL_BIND));
 
-	binds[attnum].buffer_type = mysql_from_pgtyp(type);
-	binds[attnum].is_null = isnull;
+	binds[attnum].buffer_type = mysqldb_from_pgtyp(type);
+	binds[attnum].is_null = (my_bool *)isnull;
 
 	/* Avoid to bind buffer in case value is NULL */
 	if (*isnull)
@@ -427,14 +429,14 @@ mysql_bind_sql_var(Oid type, int attnum, Datum value, MYSQL_BIND *binds, bool *i
 
 
 /*
- * mysql_bind_result: Bind the value and null pointers to get
+ * mysqldb_bind_result: Bind the value and null pointers to get
  * the data from remote mysql table (SELECT)
  */
 void
-mysql_bind_result(Oid pgtyp, int pgtypmod, MYSQL_FIELD *field, mysql_column *column)
+mysqldb_bind_result(Oid pgtyp, int pgtypmod, MYSQL_FIELD *field, mysqldb_column *column)
 {
-	MYSQL_BIND *mbind = column->_mysql_bind;
-	mbind->is_null = &column->is_null;
+	MYSQL_BIND *mbind = column->_mysqldb_bind;
+	mbind->is_null = (my_bool *)&column->is_null;
 	mbind->length = &column->length;
 	mbind->error = &column->error;
 
