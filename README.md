@@ -46,7 +46,7 @@ For release notes, read [release_notes][RELEASE].
 
 License
 -------
-Copyright (c) 2018 Postgres-Connect.
+Copyright (c) 2019 Percona.
 
 Copyright (c) 2011 - 2016, EnterpriseDB Corporation
 
