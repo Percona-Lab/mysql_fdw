@@ -438,7 +438,7 @@ mysqldb_bind_result(Oid pgtyp, int pgtypmod, MYSQL_FIELD *field, mysqldb_column 
 	MYSQL_BIND *mbind = column->_mysqldb_bind;
 	mbind->is_null = (my_bool *)&column->is_null;
 	mbind->length = &column->length;
-	mbind->error = &column->error;
+	mbind->error = (my_bool*)&column->error;
 
 	switch (pgtyp)
 	{

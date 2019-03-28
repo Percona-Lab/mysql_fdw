@@ -658,34 +658,34 @@ mysqlIterateForeignScan(ForeignScanState *node)
 		}
 		ExecStoreVirtualTuple(tupleSlot);
 	}
-	else if (1 == rc)
-	{
-			/*
-			  Error occurred. Error code and message can be obtained
-			  by calling mysqldb_stmt_errno() and mysqldb_stmt_error().
-			*/
-	}
-	else if (MYSQL_NO_DATA == rc)
-	{
-            /*
-              No more rows/data exists
-            */
-	}
-	else if (MYSQL_DATA_TRUNCATED == rc)
-	{
-            /* Data truncation occurred */
-            /*
-              MYSQL_DATA_TRUNCATED is returned when truncation
-              reporting is enabled. To determine which column values
-              were truncated when this value is returned, check the
-              error members of the MYSQL_BIND structures used for
-              fetching values. Truncation reporting is enabled by
-              default, but can be controlled by calling
-              mysqldb_options() with the MYSQL_REPORT_DATA_TRUNCATION
-              option.
-            */
-	}
-	return tupleSlot;
+    else if (1 == rc)
+    {
+        /*
+         * Error occurred. Error code and message can be obtained
+         * by calling mysqldb_stmt_errno() and mysqldb_stmt_error().
+        */
+    }
+    else if (MYSQL_NO_DATA == rc)
+    {
+        /*
+         * No more rows
+         */
+    }
+    else if (MYSQL_DATA_TRUNCATED == rc)
+    {
+		elog(WARNING, "first column of remote table must be unique for INSERT/UPDATE/DELETE operation");
+        /* Data truncation occurred
+         * MYSQL_DATA_TRUNCATED is returned when truncation
+         * reporting is enabled. To determine which column values
+         * were truncated when this value is returned, check the
+         * error members of the MYSQL_BIND structures used for
+         * fetching values. Truncation reporting is enabled by
+         * default, but can be controlled by calling
+         * mysqldb_options() with the MYSQL_REPORT_DATA_TRUNCATION
+         * option.
+        */
+    }
+    return tupleSlot;
 }
 
 
