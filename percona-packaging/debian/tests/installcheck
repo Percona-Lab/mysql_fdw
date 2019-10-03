@@ -1,0 +1,36 @@
+#!/bin/sh
+
+. /usr/share/postgresql-common/pgcommon.sh
+locale_gen en_US.UTF-8 UTF-8
+export LANG=en_US.UTF-8
+unset LANGUAGE LC_ALL LC_CTYPE
+
+(
+    set -eu
+
+    service mysql start
+
+    # Create the MySQL test database and user.
+    echo "== creating the MySQL test database"
+    cat debian/tests/mysql.testschema.sql | mysql --defaults-file="/etc/mysql/debian.cnf" -v mysql
+
+    PG_VIRTUALENV_UNSHARE="" pg_buildext installcheck
+)
+status=$?
+
+(
+    # Cleanup the MySQL test database (even in case of an error above)
+    echo "== dropping the MySQL test database"
+    echo "DROP USER 'foo'@'127.0.0.1'; DROP DATABASE testdb;" \
+     | mysql --defaults-file="/etc/mysql/debian.cnf" -v mysql
+
+    service mysql stop
+)
+
+distribution="$(lsb_release -cs || :)"
+case $distribution in
+	squeeze) exit 0 ;; # results are returned in reverse order, testsuite doesn't sort them
+	precise) exit 0 ;; # "service" insists on upstart running
+	wily) exit 0 ;; # debian-sys-maint doesn't seem to work
+esac
+exit $status
