@@ -1,0 +1,21 @@
+Source: percona-postgresql-mysql-fdw
+Section: database
+Priority: optional
+Maintainer: Percona Development Team <info@percona.com>
+Build-Depends:
+ debhelper (>= 9),
+ default-libmysqlclient-dev | libmysqlclient-dev,
+ percona-postgresql-server-dev-all (>= 153~),
+
+Package: percona-postgresql-PGVERSION-mysql-fdw
+Architecture: any
+Depends:
+ default-libmysqlclient-dev | libmysqlclient-dev,
+ postgresql-PGVERSION,
+ ${misc:Depends},
+ ${shlibs:Depends},
+Description: Postgres PGVERSION Foreign Data Wrapper for MySQL
+ postgresql-mysql-fdw is a PostgreSQL extension implementing a Foreign Data
+ Wrapper (FDW) to access MySQL data from PostgreSQL.
+ .
+ This package is for PostgreSQL PGVERSION.
